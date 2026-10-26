@@ -193,10 +193,14 @@ def kernels(args):
     manager = kernel_manager()
     found = manager.find_kernel_specs()
     if args.action == "list":
-        print("NAME\tDISPLAY NAME\tSCOPE\tDIRECTORY")
+        rows = [("NAME", "DISPLAY NAME", "SCOPE", "DIRECTORY")]
         for name, spec in sorted(manager.get_all_specs().items()):
             path = spec["resource_dir"]
-            print(f"{name}\t{spec['spec']['display_name']}\t{scope(path)}\t{path}")
+            rows.append((name, spec["spec"]["display_name"], scope(path), path))
+        widths = [max(len(row[column]) for row in rows) for column in range(3)]
+        for row in rows:
+            print("  ".join(value.ljust(width) for value, width in zip(row[:3], widths))
+                  + "  " + row[3])
         return
     name = args.name.lower()
     import re
@@ -228,29 +232,36 @@ def kernels(args):
 
 
 def parser():
-    cli = argparse.ArgumentParser(description=__doc__)
+    cli = argparse.ArgumentParser(prog="jlab", description=__doc__)
     commands = cli.add_subparsers(dest="command", required=True)
+    help_command = commands.add_parser("help", help="Show help for all commands or a specific command")
+    help_command.add_argument("topic", nargs="*", metavar="COMMAND", help="For example: kernel add")
     for command in ("start", "restart"):
-        sub = commands.add_parser(command)
+        sub = commands.add_parser(command, help=f"{command.capitalize()} the background JupyterLab instance")
         sub.add_argument("--root", help="File browser root (start default: current directory)")
         sub.add_argument("--port", type=int, help="Listen port (start default: 8888)")
-    for command in ("stop", "status", "url"):
-        commands.add_parser(command)
-    log = commands.add_parser("logs")
+    for command, description in (("stop", "Stop the server and its kernels"),
+                                 ("status", "Show server status, URL, and root"),
+                                 ("url", "Print the authenticated Lab URL and root")):
+        commands.add_parser(command, help=description)
+    log = commands.add_parser("logs", help="Show the server log")
     log.add_argument("--follow", action="store_true")
-    kernel = commands.add_parser("kernel").add_subparsers(dest="action", required=True)
-    kernel.add_parser("list")
-    add = kernel.add_parser("add")
+    kernel = commands.add_parser("kernel", help="List kernels or manage private registrations").add_subparsers(dest="action", required=True)
+    kernel.add_parser("list", help="List private, environment, user, and system kernels")
+    add = kernel.add_parser("add", help="Register a project environment as a private kernel")
     add.add_argument("name")
     add.add_argument("--python", required=True, help="Project environment's Python executable")
     add.add_argument("--display-name")
     add.add_argument("--replace", action="store_true")
-    kernel.add_parser("remove").add_argument("name")
+    kernel.add_parser("remove", help="Remove a private kernel registration").add_argument("name")
     return cli
 
 
 def main():
-    args = parser().parse_args()
+    arguments = sys.argv[1:]
+    if arguments[:1] == ["help"]:
+        arguments = arguments[1:] + ["--help"]
+    args = parser().parse_args(arguments)
     prepare()
     if args.command == "logs":
         if not LOG.exists():

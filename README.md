@@ -28,6 +28,8 @@ jlab logs --follow
 jlab restart                       # Retain last root and port
 jlab restart --root ~/dev           # Change root explicitly
 jlab stop                          # Also shuts down its running kernels
+jlab help                          # List commands
+jlab help kernel add               # Help for a specific command
 ```
 
 One background instance runs per checkout. It survives closing the terminal, listens only on `127.0.0.1`, and uses token authentication. Open the printed URL manually; no browser opens automatically. Port 8888 is the default, and an occupied port causes an error rather than silently choosing another port.
