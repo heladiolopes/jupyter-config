@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+launcher=$(readlink -f -- "${BASH_SOURCE[0]}")
+repo=$(dirname -- "$(dirname -- "$launcher")")
+if [[ ! -x "$repo/.venv/bin/python" ]]; then
+    echo "Application environment missing. Run: $repo/install.sh" >&2
+    exit 1
+fi
+exec "$repo/.venv/bin/python" "$repo/jlab.py" "$@"

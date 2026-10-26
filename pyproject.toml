@@ -1,0 +1,9 @@
+[project]
+name = "local-jupyterlab"
+version = "0.1.0"
+description = "A reusable local JupyterLab environment with project kernels"
+requires-python = ">=3.11"
+dependencies = ["jupyterlab>=4.4,<5"]
+
+[tool.uv]
+package = false
