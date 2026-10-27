@@ -1,91 +1,67 @@
 # Local JupyterLab
 
-One application environment for JupyterLab, extensions, keyboard shortcuts, and settings. Each project supplies its own Python environment as a kernel. Existing user and system kernels remain available.
+A shared JupyterLab environment for extensions, shortcuts, and settings. Each project uses its own Python environment as a kernel. Global kernels are also available.
 
 ## Install
 
-Requires Linux, Python 3.11 or newer, and [uv](https://docs.astral.sh/uv/).
+Requires Linux, Python 3.11+, and [uv](https://docs.astral.sh/uv/).
 
 ```sh
-cd /path/to/jupyterlab-config
 ./install.sh
 ```
 
-The installer runs `uv sync --locked` and links `~/.local/bin/jlab` to this checkout. Keep the checkout in place. If needed, add `export PATH="$HOME/.local/bin:$PATH"` to `~/.zshrc`, then open a new shell. The application never needs its environment activated.
-
-To use the repository script without installing a shortcut, run `/path/to/jupyterlab-config/bin/jlab` directly after `uv sync --locked`.
+This creates the application environment and installs `jlab` in `~/.local/bin`. Add that directory to your shell's PATH if needed. Keep this repository in place.
 
 ## Run
 
 ```sh
 cd ~/dev/my-project
-jlab start                         # File browser root: current directory
-jlab start --root ~/dev --port 8889 # For a stopped instance, expose multiple projects
+jlab start                         # Use the current directory as the root
 jlab status
 jlab url
-jlab logs
 jlab logs --follow
-jlab restart                       # Retain last root and port
-jlab restart --root ~/dev           # Change root explicitly
-jlab stop                          # Also shuts down its running kernels
-jlab help                          # List commands
-jlab help kernel add               # Help for a specific command
+jlab restart                       # Keep the previous root and port
+jlab restart --root ~/dev/my-project
+jlab stop                          # Stop Lab and its running kernels
+jlab help                          # Show all commands
 ```
 
-One background instance runs per checkout. It survives closing the terminal, listens only on `127.0.0.1`, and uses token authentication. Open the printed URL manually; no browser opens automatically. Port 8888 is the default, and an occupied port causes an error rather than silently choosing another port.
+Open the printed URL in your browser. Lab runs in the background at `127.0.0.1:8888`. Use `--root` or `--port` with `start` or `restart` to change these options.
 
-Repeated `start` calls report the existing instance, even when invoked from another directory. Explicitly conflicting root or port options require `restart`. Status and URL commands exit with status 1 when the server is unavailable. A restart of a stopped instance retains its last root and port when metadata is available.
+## Add a project kernel
 
-Logs, authentication tokens, runtime files, process metadata, and workspace layouts live under ignored `.state/`. Treat this directory and printed authenticated URLs as private. Stop the instance before moving or deleting the checkout. `jlab stop` terminates notebook computations; save work first. There is no automatic startup at login.
-
-## Project kernels
-
-For a uv-managed project:
+Run from your project directory:
 
 ```sh
-cd ~/dev/my-project
 uv add --dev ipykernel
-jlab kernel add my-project --python .venv/bin/python --display-name 'Python (my-project)'
+jlab kernel add my-project --python .venv/bin/python
 jlab kernel list
-jlab start
 ```
 
-Select **Python (my-project)** in the notebook kernel picker. The notebook runs in that project's environment; install its libraries with that project's dependency manager. For an existing non-uv environment, install `ipykernel` using that environment's Python, then pass its `bin/python` path to the same registration command.
-
-The application includes `jupyterlab-widgets` for rendering widget layouts. Projects using widgets also need `ipywidgets` in their kernel environment (for example, `uv add ipywidgets`). After installing widget support, restart Lab, reload the browser, and rerun the affected notebook cells to recreate their widgets.
+Select **Python (my-project)** in the notebook. Install project libraries in that environment.
 
 ```sh
 jlab kernel add my-project --python .venv/bin/python --replace
 jlab kernel remove my-project
 ```
 
-Registration saves an absolute interpreter path. Register again after moving or rebuilding an environment. Removing a registration does not delete the environment or stop an already running kernel.
+Register again if the environment moves. Removal only deletes this instance's registration; global kernels and project environments stay intact. For widget layouts, also install `ipywidgets` in the project.
 
-Lab and `jlab kernel list` use the same search paths: this checkout's private registrations, inherited `JUPYTER_PATH`, and Jupyter's normal environment, user, and system paths. The CLI shows the effective name, display name, scope, and resource directory. It does not scan arbitrary unregistered virtual environments.
+## Customize
 
-Private registrations take priority on duplicate names; the remaining paths follow Jupyter's normal precedence. `--replace` can create a private override of a global kernel without modifying it. Removing the override reveals the global registration again. Removal refuses to delete global-only registrations. Use the same environment variables when invoking lifecycle and kernel commands if you customize Jupyter search paths; restart after changing those variables.
+Change shortcuts and preferences in **Settings → Settings Editor**. Settings are saved under `config/lab/user-settings/`; commit them to reuse your setup. Server settings live in `config/jupyter_server_config.py`. Local runtime data stays in ignored `.state/`.
 
-## Settings and extensions
+Ruff organizes imports and formats Python cells. Basedpyright uses basic type checking and discovers `.venv` in the startup root. Its environment applies to the whole instance; changing notebook kernels does not change it. Without a project `.venv`, it uses the application environment.
 
-Edit shortcuts and other preferences in JupyterLab's **Settings → Settings Editor**. Changes are written into `config/lab/user-settings/`; review and commit these files to reuse them. Server options live in `config/jupyter_server_config.py`. The launcher enforces loopback binding, the chosen root and port, no port fallback, and no automatic browser launch. Keep secrets out of tracked configuration.
-
-JupyterLab Code Formatter uses Ruff for Python: `ruff` organizes imports, then `ruffformat` formats the code. Both run in the application environment, so project kernels do not need Ruff installed. Use the formatter toolbar or command palette to format cells; formatting on save remains off by default. Its settings live in `config/lab/user-settings/jupyterlab_code_formatter/settings.jupyterlab-settings`. Reload Lab after changing these settings; restart the server after installing or updating the extension.
-
-JupyterLab LSP runs the application's basedpyright server with the startup root's `.venv/bin/python` available for import resolution. Start in your project directory, or pass it with `--root`. If that directory has no valid `.venv`, analysis falls back to the application environment. This choice applies to the whole instance and does not change when you switch notebook kernels. To analyze another project's environment, use `jlab restart --root /path/to/project`; a plain `restart` retains the previous root. Notebook execution continues to use each notebook's selected kernel.
-
-Basedpyright uses `basic` type checking for open documents to limit diagnostic noise. Customize this in `config/lab/user-settings/@jupyter-lsp/jupyterlab-lsp/plugin.jupyterlab-settings`; a project's own basedpyright configuration can override the type-checking mode.
-
-Install prebuilt Python extensions from this application repository:
+Manage extensions from this repository:
 
 ```sh
-cd /path/to/jupyterlab-config
-uv add jupyterlab-git                 # Example; no extensions are installed initially
+uv add <extension-package>
+uv remove <extension-package>
 jlab restart
 ```
 
-To remove one, use `uv remove jupyterlab-git` and restart. Commit `pyproject.toml` and `uv.lock` after dependency changes. Prefer this workflow to installing through Lab's extension UI, so the environment remains reproducible. Notebook `%pip` commands affect the selected kernel, not the application's dependencies.
-
-To rebuild the application environment, stop Lab, recreate `.venv` using `uv sync --locked`, and start again. Configuration and private kernel registrations live outside `.venv` and survive rebuilding it. UI workspace layouts are local state and are not committed.
+Commit `pyproject.toml` and `uv.lock` after dependency changes. Reload the browser after changing extensions or settings.
 
 ## Checks
 
@@ -93,5 +69,3 @@ To rebuild the application environment, stop Lab, recreate `.venv` using `uv syn
 .venv/bin/python -m unittest discover -s tests -v
 bash -n bin/jlab install.sh
 ```
-
-Integration tests run real servers in temporary checkouts, use private fixture registrations, and stop their servers during cleanup. They require permission to bind loopback ports; they do not modify your global kernels or running application instance.
