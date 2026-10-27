@@ -1,0 +1,14 @@
+{
+  "language_servers": {
+    "basedpyright": {
+      "serverSettings": {
+        "basedpyright": {
+          "analysis": {
+            "typeCheckingMode": "basic",
+            "diagnosticMode": "openFilesOnly"
+          }
+        }
+      }
+    }
+  }
+}

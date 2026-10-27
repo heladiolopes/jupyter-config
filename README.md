@@ -71,6 +71,10 @@ Edit shortcuts and other preferences in JupyterLab's **Settings → Settings Edi
 
 JupyterLab Code Formatter uses Ruff for Python: `ruff` organizes imports, then `ruffformat` formats the code. Both run in the application environment, so project kernels do not need Ruff installed. Use the formatter toolbar or command palette to format cells; formatting on save remains off by default. Its settings live in `config/lab/user-settings/jupyterlab_code_formatter/settings.jupyterlab-settings`. Reload Lab after changing these settings; restart the server after installing or updating the extension.
 
+JupyterLab LSP runs the application's basedpyright server with the startup root's `.venv/bin/python` available for import resolution. Start in your project directory, or pass it with `--root`. If that directory has no valid `.venv`, analysis falls back to the application environment. This choice applies to the whole instance and does not change when you switch notebook kernels. To analyze another project's environment, use `jlab restart --root /path/to/project`; a plain `restart` retains the previous root. Notebook execution continues to use each notebook's selected kernel.
+
+Basedpyright uses `basic` type checking for open documents to limit diagnostic noise. Customize this in `config/lab/user-settings/@jupyter-lsp/jupyterlab-lsp/plugin.jupyterlab-settings`; a project's own basedpyright configuration can override the type-checking mode.
+
 Install prebuilt Python extensions from this application repository:
 
 ```sh

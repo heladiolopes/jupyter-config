@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A reusable local JupyterLab environment with project kernels"
 requires-python = ">=3.11"
 dependencies = [
+    "basedpyright>=1.40.2",
     "jupyterlab>=4.4,<5",
     "jupyterlab-code-formatter>=3.1.0",
     "jupyterlab-git>=0.55.0",
