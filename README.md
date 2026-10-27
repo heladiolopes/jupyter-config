@@ -52,6 +52,8 @@ jlab start
 
 Select **Python (my-project)** in the notebook kernel picker. The notebook runs in that project's environment; install its libraries with that project's dependency manager. For an existing non-uv environment, install `ipykernel` using that environment's Python, then pass its `bin/python` path to the same registration command.
 
+The application includes `jupyterlab-widgets` for rendering widget layouts. Projects using widgets also need `ipywidgets` in their kernel environment (for example, `uv add ipywidgets`). After installing widget support, restart Lab, reload the browser, and rerun the affected notebook cells to recreate their widgets.
+
 ```sh
 jlab kernel add my-project --python .venv/bin/python --replace
 jlab kernel remove my-project
@@ -66,6 +68,8 @@ Private registrations take priority on duplicate names; the remaining paths foll
 ## Settings and extensions
 
 Edit shortcuts and other preferences in JupyterLab's **Settings → Settings Editor**. Changes are written into `config/lab/user-settings/`; review and commit these files to reuse them. Server options live in `config/jupyter_server_config.py`. The launcher enforces loopback binding, the chosen root and port, no port fallback, and no automatic browser launch. Keep secrets out of tracked configuration.
+
+JupyterLab Code Formatter uses Ruff for Python: `ruff` organizes imports, then `ruffformat` formats the code. Both run in the application environment, so project kernels do not need Ruff installed. Use the formatter toolbar or command palette to format cells; formatting on save remains off by default. Its settings live in `config/lab/user-settings/jupyterlab_code_formatter/settings.jupyterlab-settings`. Reload Lab after changing these settings; restart the server after installing or updating the extension.
 
 Install prebuilt Python extensions from this application repository:
 

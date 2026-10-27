@@ -1,0 +1,36 @@
+{
+  "shortcuts": [
+    {
+      "command": "runmenu:restart-and-run-all",
+      "keys": [
+        "0",
+        "9"
+      ],
+      "selector": "[data-jp-kernel-user]:focus"
+    },
+    {
+      "command": "notebook:restart-and-run-to-selected",
+      "keys": [
+        "9",
+        "9"
+      ],
+      "selector": ".jp-Notebook:focus"
+    },
+    {
+      "command": "notebook:clear-all-cell-outputs",
+      "keys": [
+        "1",
+        "1"
+      ],
+      "selector": ".jp-Notebook:focus"
+    },
+    {
+      "command": "jupyterlab_code_formatter:format",
+      "keys": [
+        "F"
+      ],
+      "selector": ".jp-Notebook:focus-within"
+    }
+  ]
+}
+

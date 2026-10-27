@@ -1,0 +1,32 @@
+{
+  "codeCellConfig": {
+    "fontFamily": "JetBrains Mono",
+    "fontSize": 12,
+    "lineHeight": 1.4,
+    "lineNumbers": true,
+    "rulers": [
+      72,
+      80
+    ],
+    "codeFolding": true
+  },
+  "markdownCellConfig": {
+    "fontFamily": "JetBrains Mono",
+    "fontSize": 12,
+    "lineHeight": 1.4,
+    "rulers": [
+      72,
+      80
+    ],
+    "codeFolding": true
+  },
+  "rawCellConfig": {
+    "fontFamily": "JetBrains Mono",
+    "fontSize": 12,
+    "lineHeight": 1.4,
+    "rulers": [
+      72,
+      80
+    ]
+  }
+}
